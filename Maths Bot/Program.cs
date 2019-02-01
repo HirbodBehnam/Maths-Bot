@@ -78,7 +78,7 @@ namespace Maths_Bot
                     }
                     break;
                 case "/about":
-                    await bot.SendTextMessageAsync(message.Chat.Id, "Created with \u2764 by Hirbod Behnam! Contact me here: @ThyCrow\n\nAlso you can view the project source at:\nLINK TO GITHUB");
+                    await bot.SendTextMessageAsync(message.Chat.Id, "Created with \u2764 by Hirbod Behnam! Contact me here: @ThyCrow\n\nAlso you can view the project source at:\nhttps://github.com/HirbodBehnam/Maths-Bot");
                     break;
                 case "/donate":
                     await bot.SendTextMessageAsync(message.Chat.Id, "Thanks for donating to me!\u2764\nI currently only accept *Bitcoin*, *Bitcoin Gold*, *Ethereum*, *Monero* and *ZCash*.\nFor me, even 1$ per month would be ok but more is welcome :) Here are my wallet addresses:\nBitcoin\n`1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`\nBitcoin Gold:\n`GcNgxfyR3nnAsD3Nhuckvq14sXYuDFkK9P`\nEthereum:\n`0xbb527a28B76235E1C125206B7CcFF944459b4894`\nMonero:\n`43GGA2kcGwqBXpGKwt2zFBicz2wh41zX3JNSnj12dXDiWzJHn44tpVT1eiUt8UMym828A1BBgaboBTn1usnCNHZqMhhuDXz`\nZCash:\n`t1ZKYrYZCjxDYvo6mQaLZi3gNe2a6MydUo3`\n\nWant to buy some? Check here: https://www.coinbase.com and https://exchanging.ir/sell/", ParseMode.Markdown,true);
