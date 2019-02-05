@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -49,9 +50,21 @@ namespace Maths_Bot
             Console.Title = me.Username;
             bot.OnMessage += BotOnMessageReceived;
             bot.StartReceiving();
-            Console.WriteLine($"[ {DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Starting @{me.Username} bot. Press enter to stop bot.");
-            Console.WriteLine("Press enter to stop bot.");
-            Console.ReadLine(); //Wait until user presses enter
+            Console.WriteLine($"[ {DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Starting @{me.Username} bot.");
+            /*
+             * If you are going to make a service out of this application you may have to pass -l to application
+             */
+            if (args.Length > 1 && args[1] == "-l")
+            {
+                Console.WriteLine("Press Ctrl+C to stop application");
+                while (true)
+                    Thread.Sleep(int.MaxValue);//Stop main thread and wait for Ctrl+C
+            }
+            else
+            {
+                Console.WriteLine("Press enter to stop bot.");
+                Console.ReadLine();//Wait until user presses enter
+            }
             bot.StopReceiving();
         }
         private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
