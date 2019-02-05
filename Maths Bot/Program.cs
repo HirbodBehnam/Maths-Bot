@@ -33,6 +33,7 @@ namespace Maths_Bot
                 Console.WriteLine("Please pass your bot token as argument.");
                 return;
             }
+            Console.WriteLine("Rare Math Calculations Bot By Hirbod Behnam");
             //Parse Token and setup bot
             try
             {
@@ -133,7 +134,7 @@ namespace Maths_Bot
                     {
                         if (splitMessage.Length == 1)//Check for number
                         {
-                            await bot.SendTextMessageAsync(message.Chat.Id, "Factorize a number to prime numbers.\nUsage:\n  /factors `number`\nExample:\n   /factors 96", ParseMode.Markdown);
+                            await bot.SendTextMessageAsync(message.Chat.Id, "Factorize a number to prime numbers.\nUsage:\n  /factorize `number`\nExample:\n   /factorize 946", ParseMode.Markdown);
                             break;
                         }
                         uint Number;
