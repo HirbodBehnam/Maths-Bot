@@ -3,6 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <Version>1.0.1</Version>
+    <Authors>Hirbod Behnam</Authors>
+    <PackageProjectUrl>https://github.com/HirbodBehnam/Maths-Bot</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/HirbodBehnam/Maths-Bot</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/HirbodBehnam/Maths-Bot/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Hirbod Behnam</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

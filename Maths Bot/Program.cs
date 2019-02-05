@@ -23,7 +23,7 @@ namespace Maths_Bot
             { "quadratic","Solve a quadratic equation" },
             //Non-Mathematical functions
             { "about","About this bot" },
-            { "app","See the main Rare Math Calculations application on bazaar." },
+            { "app","See the main Rare Math Calculations application on bazaar" },
             { "donate","Donate to me!" }
         };
         static void Main(string[] args)
@@ -162,7 +162,7 @@ namespace Maths_Bot
                             {
                                 sb.Append(' ');
                                 sb.Append(i);
-                                sb.Append('x');
+                                sb.Append(" x");
                             }
                             sb.Length--;
                             bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
@@ -194,7 +194,7 @@ namespace Maths_Bot
                             await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
                             break;
                         }
-                        new Task(() => bot.SendTextMessageAsync(message.Chat.Id, "The GCD of " + Num1 + " and " + Num2 + " is " + MathCore.GCD(Num1, Num2)))
+                        new Task(() => bot.SendTextMessageAsync(message.Chat.Id, "The GCD of " + Num1 + " and " + Num2 + " is `" + MathCore.GCD(Num1, Num2) + "`",ParseMode.Markdown))
                             .Start();
                     }
                     break;
@@ -223,7 +223,7 @@ namespace Maths_Bot
                             await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
                             break;
                         }
-                        new Task(() => bot.SendTextMessageAsync(message.Chat.Id, "The LCM of " + Num1 + " and " + Num2 + " is " + (Num1 * Num2 / MathCore.GCD(Num1, Num2))))
+                        new Task(() => bot.SendTextMessageAsync(message.Chat.Id, "The LCM of " + Num1 + " and " + Num2 + " is `" + (Num1 * Num2 / MathCore.GCD(Num1, Num2)) + "`",ParseMode.Markdown))
                             .Start();
                     }
                     break;
@@ -252,7 +252,7 @@ namespace Maths_Bot
                             await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 18446744073709551616.");
                             break;
                         }
-                        await bot.SendTextMessageAsync(message.Chat.Id, "The remainder of division of " + Num1 + "/" + Num2 + " is " + Num1 % Num2);
+                        await bot.SendTextMessageAsync(message.Chat.Id, "The remainder of division of " + Num1 + " / " + Num2 + " is `" + Num1 % Num2 + "`",ParseMode.Markdown);
                     }
                     break;
                 case "/detectprime":
@@ -282,7 +282,7 @@ namespace Maths_Bot
                         new Task(() =>
                         {
                             uint res = MathCore.DetectPrime(Number);
-                            bot.SendTextMessageAsync(message.Chat.Id, "The " + Number + (Number == 1 ? " IS PRIME." : " IS NOT prime. It can be divided by " + Number));
+                            bot.SendTextMessageAsync(message.Chat.Id, Number + (res == 1 ? " IS PRIME." : " IS NOT prime. It can be divided by " + res));
                         }).Start();
                     }
                     break;
@@ -319,11 +319,11 @@ namespace Maths_Bot
                         if(delta < 0)
                             await bot.SendTextMessageAsync(message.Chat.Id, "`delta` is less than 0.", ParseMode.Markdown);
                         else if(delta == 0)
-                            await bot.SendTextMessageAsync(message.Chat.Id, "`x` = " + ((-b) / (2*a)), ParseMode.Markdown);
+                            await bot.SendTextMessageAsync(message.Chat.Id, "`x` = `" + ((-b) / (2*a)) + "`", ParseMode.Markdown);
                         else
                         {
                             delta = Math.Sqrt(delta);
-                            await bot.SendTextMessageAsync(message.Chat.Id, "`x1` = " + ((-b + delta)/ (2 * a)) + "\n`x2` = " + ((-b - delta) / (2 * a)), ParseMode.Markdown);
+                            await bot.SendTextMessageAsync(message.Chat.Id, "`x1` = `" + ((-b + delta)/ (2 * a)) + "`\n`x2` = `" + ((-b - delta) / (2 * a))+"`", ParseMode.Markdown);
                         }
                     }
                     break;
