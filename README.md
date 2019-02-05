@@ -1,4 +1,4 @@
-# Maths-Bot
+# Maths Bot
 A Telegram bot for Rare Math Calculations application.
 ## What this bot can do?
 * Calculate GCD/LCM
