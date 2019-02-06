@@ -126,10 +126,16 @@ namespace Maths_Bot
                         }
                         new Task(() => //Send process to background to avoid busy threads
                         {
-                            StringBuilder sb = new StringBuilder("The factors of ");
+                            uint[] facotrs = MathCore.Factors(Number);
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append(Number);
+                            sb.Append(" has ");
+                            sb.Append(facotrs.Length);
+                            sb.AppendLine(" factors.");
+                            sb.Append("The factors of ");
                             sb.Append(Number);
                             sb.AppendLine(" are:");
-                            foreach (uint i in MathCore.Factors(Number))
+                            foreach (uint i in facotrs)
                             {
                                 if (sb.Length >= 4084)//Telegram Max Message Length - number of chars in 2^32 - chars in '\n'
                                 {
