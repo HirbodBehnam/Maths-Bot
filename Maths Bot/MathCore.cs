@@ -61,14 +61,20 @@ namespace Maths_Bot
         /// <returns>1 if number is prime otherwise returns a factor of number</returns>
         public static uint DetectPrime(uint number)
         {
-            if (number == 2)
+            if (number == 2 || number == 3 || number == 5 || number == 7)
                 return 1;
             if (number % 2 == 0)
                 return 2;
+            if (number % 3 == 0)
+                return 3;
             uint TO = (uint)Math.Sqrt(number);
-            for (uint i = 3; i <= TO; i += 2)
+            for (uint i = 5; i <= TO; i += 6)
+            {
                 if (number % i == 0)
                     return i;
+                if (number % (i + 2) == 0)
+                    return i + 2;
+            }
             return 1;
         }
     }
