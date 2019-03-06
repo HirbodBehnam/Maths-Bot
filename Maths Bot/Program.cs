@@ -38,7 +38,7 @@ namespace Maths_Bot
             "*Prime Detector*\nDetects if a number is prime or not.\n\nUse /menu to choose another function.",
             "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax^2+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"3 -5 1.5\" where a = 3, b = -5 and c = 1.5\n\nUse /menu to choose another function."
         };
-        private static string DBPath = "user_database.json";
+        private static string DBPath = AppContext.BaseDirectory + "/user_database.json";
         static void Main(string[] args)
         {
             if(args.Length == 0)
@@ -434,12 +434,12 @@ namespace Maths_Bot
                                     }).Start();
                                 }
                                 break;
-                            case 7:
+                            case 7: //Quadratic equation
                                 {
                                     string[] splitMessage = message.Text.Split(' ');
                                     if (splitMessage.Length != 3)//Check for numbers
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Solve a quadratic equation.\nUsage:\nSuppose the equation `ax^2+bx+c=0` then use /quadratic `a` `b` `c` to solve the equation.\nExample:\n   /quadratic 4.3 -43 -5.54", ParseMode.Markdown);
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send bot three numbers.");
                                         break;
                                     }
                                     double a, b, c;
