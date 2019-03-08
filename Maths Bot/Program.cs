@@ -43,8 +43,8 @@ namespace Maths_Bot
         {
             if(args.Length == 0)
             {
-                Console.WriteLine("Usage: dotnet \"Maths Bot.dll\" [-l] [--db Location]");
-                Console.WriteLine("Example: dotnet \"Maths Bot.dll\" -l --db \"/etc/Bot/myConf.db\"");
+                Console.WriteLine("Usage: dotnet \"Maths Bot.dll\" BOT_TOKEN [-l] [--db Location]");
+                Console.WriteLine("Example: dotnet \"Maths Bot.dll\" MY_TOKEN -l --db \"/etc/Bot/myConf.db\"");
                 Console.WriteLine("Pass \"-l\" if you are running bot as service.");
                 Console.WriteLine("Database location by default is current working directory and the file \"user_database.json\"");
                 return;
