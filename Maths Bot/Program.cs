@@ -290,17 +290,17 @@ namespace Maths_Bot
                                     try
                                     {
                                         Number = uint.Parse(message.Text);
-                                        if (Number == 0)
+                                        if (Number < 2)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 2 and 4294967296.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 2 and 4294967296.");
                                         break;
                                     }
                                     new Task(() => //Send process to background to avoid busy threads
