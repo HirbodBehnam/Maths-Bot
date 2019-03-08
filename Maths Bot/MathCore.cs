@@ -42,15 +42,37 @@ namespace Maths_Bot
         public static uint[] Factorize(uint a)
         {
             List<uint> factors = new List<uint>();
-            uint i = 2;
+            uint TO = (uint)Math.Sqrt(a);
+            while (a % 2 == 0)
+            {
+                factors.Add(2);
+                a /= 2;
+            }
+            while (a % 3 == 0)
+            {
+                factors.Add(3);
+                a /= 3;
+            }
+            uint i = 5;
             while(a != 1)
             {
+                if(i > TO)
+                {
+                    factors.Add(a);
+                    break;
+                }
                 while(a % i == 0)
                 {
                     factors.Add(i);
                     a /= i;
                 }
-                i++;
+                i+=2;
+                while (a % i == 0)
+                {
+                    factors.Add(i);
+                    a /= i;
+                }
+                i += 4;
             }
             return factors.ToArray();
         }
