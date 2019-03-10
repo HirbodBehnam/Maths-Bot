@@ -23,20 +23,23 @@ namespace Maths_Bot
             { "mod","Find remainder of division of two numbers" },
             { "detectprime","Detects if a number is prime or not" },
             { "quadratic","Solve a quadratic equation" },
+            { "2varequation","Solve two variable two equation system" },
             //Non-Mathematical functions
             { "about","About this bot" },
             { "app","See the main Rare Math Calculations application on bazaar" },
             { "donate","Donate to me!" }
         };
+        private static readonly string ShowMenuAtLast = "\n\nUse /menu to choose another function.";
         private static readonly string[] HelpInsideFunctions = new string[]
         {
-            "*Factors*\nFind factors of a number.\nFor example 6 results in 1,2,3 and 6\nSend a number to bot to find it's factors.\n\nUse /menu to choose another function.",
-            "*Factorize*\nFactorize a number to prime factors.\nSend a number to factorize the number.\n\nUse /menu to choose another function." ,
-            "*GCD*\nFind greatest common divisor of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n43895 4343\n\nUse /menu to choose another function." ,
-            "*LCM*\nFind least common multiple of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n94533 4453\n\nUse /menu to choose another function." ,
-            "*Remainder*\nFind remainder of division of two numbers.\nSend a numbers like `dividend` `divisor`.\nFor example send:\n656757 535\n\nUse /menu to choose another function." ,
-            "*Prime Detector*\nDetects if a number is prime or not.\n\nUse /menu to choose another function.",
-            "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax^2+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"3 -5 1.5\" where a = 3, b = -5 and c = 1.5\n\nUse /menu to choose another function."
+            "*Factors*\nFind factors of a number.\nFor example 6 results in 1,2,3 and 6\nSend a number to bot to find it's factors.",
+            "*Factorize*\nFactorize a number to prime factors.\nSend a number to factorize the number." ,
+            "*GCD*\nFind greatest common divisor of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n43895 4343" ,
+            "*LCM*\nFind least common multiple of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n94533 4453" ,
+            "*Remainder*\nFind remainder of division of two numbers.\nSend a numbers like `dividend` `divisor`.\nFor example send:\n656757 535" ,
+            "*Prime Detector*\nDetects if a number is prime or not.\nSend a number to bot to check.",
+            "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax^2+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"`3 -5 1.5`\" where a = 3, b = -5 and c = 1.5",
+            "*Two Variable Two Equation Solver*\nSuppose the system\n`ax+by=c`\n`dx+ey=f`\nThen enter `a`, `b`, `c`, `d`, `e` and `f` split by whitespace.\nFor example send bot \"`3 -5 1.5 64 -435 0`\" where a = 3, b = -5, c = 1.5, d = 64, e = -435 and f = 0"
         };
         private static string DBPath = AppContext.BaseDirectory + "/user_database.json";
         static void Main(string[] args)
@@ -207,31 +210,35 @@ namespace Maths_Bot
                     break;
                 case "/factors":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 1);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[0],ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[0] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/factorize":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 2);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[1], ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[1] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/gcd":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 3);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[2], ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[2] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/lcm":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 4);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[3], ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[3] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/mod":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 5);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[4], ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[4] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/detectprime":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 6);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[5], ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[5] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/quadratic":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 7);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[6], ParseMode.Markdown);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[6]+ ShowMenuAtLast, ParseMode.Markdown);
+                    break;
+                case "/2varequation":
+                    UserDB = Extra.SetPageIn(UserDB, UserID, 8);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[7] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 default:
                     if (PageIn == 0)
@@ -474,6 +481,44 @@ namespace Maths_Bot
                                         delta = Math.Sqrt(delta);
                                         await bot.SendTextMessageAsync(message.Chat.Id, "`x1` = `" + ((-b + delta) / (2 * a)) + "`\n`x2` = `" + ((-b - delta) / (2 * a)) + "`", ParseMode.Markdown);
                                     }
+                                }
+                                break;
+                            case 8: //Two Variable Two Equation Solver
+                                {
+                                    string[] splitMessage = message.Text.Split(' ');
+                                    if (splitMessage.Length != 6)//Check for numbers
+                                    {
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send bot six numbers.");
+                                        break;
+                                    }
+                                    double a, b, c, d, e, f;
+                                    try
+                                    {
+                                        a = double.Parse(splitMessage[0]);
+                                        b = double.Parse(splitMessage[1]);
+                                        c = double.Parse(splitMessage[2]);
+                                        d = double.Parse(splitMessage[3]);
+                                        e = double.Parse(splitMessage[4]);
+                                        f = double.Parse(splitMessage[5]);
+                                    }
+                                    catch (OverflowException)
+                                    {
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "I wonder how long you've been typing? You overflowed a double type!");
+                                        break;
+                                    }
+                                    catch (FormatException)
+                                    {
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "The value you entered is not valid.");
+                                        break;
+                                    }
+                                    double det = a * e - b * d;
+                                    if(det == 0)
+                                    {
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Lines are parallel.");
+                                        break;
+                                    }
+                                    double detX = c * e - f * b, detY = a * f - d * c;
+                                    await bot.SendTextMessageAsync(message.Chat.Id, "x = `" + (detX / det) + "`\ny = `" + (detY / det) + "`",ParseMode.Markdown);
                                 }
                                 break;
                         }
