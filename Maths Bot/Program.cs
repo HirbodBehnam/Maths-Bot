@@ -24,6 +24,7 @@ namespace Maths_Bot
             { "detectprime","Detects if a number is prime or not" },
             { "quadratic","Solve a quadratic equation" },
             { "2varequation","Solve two variable two equation system" },
+            { "average","Get average of some numbers" },
             //Non-Mathematical functions
             { "about","About this bot" },
             { "app","See the main Rare Math Calculations application on bazaar" },
@@ -39,7 +40,8 @@ namespace Maths_Bot
             "*Remainder*\nFind remainder of division of two numbers.\nSend a numbers like `dividend` `divisor`.\nFor example send:\n656757 535" ,
             "*Prime Detector*\nDetects if a number is prime or not.\nSend a number to bot to check.",
             "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax^2+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"`3 -5 1.5`\" where a = 3, b = -5 and c = 1.5",
-            "*Two Variable Two Equation Solver*\nSuppose the system\n`ax+by=c`\n`dx+ey=f`\nThen enter `a`, `b`, `c`, `d`, `e` and `f` split by whitespace.\nFor example send bot \"`3 -5 1.5 64 -435 0`\" where a = 3, b = -5, c = 1.5, d = 64, e = -435 and f = 0"
+            "*Two Variable Two Equation Solver*\nSuppose the system\n`ax+by=c`\n`dx+ey=f`\nThen enter `a`, `b`, `c`, `d`, `e` and `f` split by whitespace.\nFor example send bot \"`3 -5 1.5 64 -435 0`\" where a = 3, b = -5, c = 1.5, d = 64, e = -435 and f = 0",
+            "*Average Calculator*\nEnter numbers split by whitespace to calculate their average.\nExample: 12 5.4 6.56 -43.4 -767 343 1 -54"
         };
         private static string DBPath = AppContext.BaseDirectory + "/user_database.json";
         static void Main(string[] args)
@@ -239,6 +241,10 @@ namespace Maths_Bot
                 case "/2varequation":
                     UserDB = Extra.SetPageIn(UserDB, UserID, 8);
                     await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[7] + ShowMenuAtLast, ParseMode.Markdown);
+                    break;
+                case "/average":
+                    UserDB = Extra.SetPageIn(UserDB, UserID, 9);
+                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[8] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 default:
                     if (PageIn == 0)
@@ -519,6 +525,28 @@ namespace Maths_Bot
                                     }
                                     double detX = c * e - f * b, detY = a * f - d * c;
                                     await bot.SendTextMessageAsync(message.Chat.Id, "x = `" + (detX / det) + "`\ny = `" + (detY / det) + "`",ParseMode.Markdown);
+                                }
+                                break;
+                            case 9: //Average
+                                {
+                                    string[] splitMessage = message.Text.Split(' ');
+                                    double sum = 0;
+                                    try
+                                    {
+                                        foreach (string s in splitMessage)
+                                            sum += Convert.ToDouble(s);
+                                    }
+                                    catch (FormatException)
+                                    {
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Invalid number.");
+                                        break;
+                                    }
+                                    catch (OverflowException)
+                                    {
+                                        await bot.SendTextMessageAsync(message.Chat.Id, "Sum of numbers are two big.");
+                                        break;
+                                    }
+                                    await bot.SendTextMessageAsync(message.Chat.Id, "The average is `" + (sum / splitMessage.Length) + "`",ParseMode.Markdown);
                                 }
                                 break;
                         }
