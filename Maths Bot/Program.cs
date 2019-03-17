@@ -136,7 +136,7 @@ namespace Maths_Bot
                 {
                     Thread.Sleep(FiftyMin);
                     if (UserDatabaseActions.Save(UserDB, DBPath))
-                        Console.WriteLine($"[ { DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Saved database.");
+                        Console.WriteLine($"[ { DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Saved database at " + DBPath);
                 }
             }).Start();
             /*
