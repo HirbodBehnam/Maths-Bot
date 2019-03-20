@@ -39,7 +39,7 @@ namespace Maths_Bot
             "*LCM*\nFind least common multiple of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n94533 4453" ,
             "*Remainder*\nFind remainder of division of two numbers.\nSend a numbers like `dividend` `divisor`.\nFor example send:\n656757 535" ,
             "*Prime Detector*\nDetects if a number is prime or not.\nSend a number to bot to check.",
-            "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax^2+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"`3 -5 1.5`\" where a = 3, b = -5 and c = 1.5",
+            "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax²+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"`3 -5 1.5`\" where a = 3, b = -5 and c = 1.5",
             "*Two Variable Two Equation Solver*\nSuppose the system\n`ax+by=c`\n`dx+ey=f`\nThen enter `a`, `b`, `c`, `d`, `e` and `f` split by whitespace.\nFor example send bot \"`3 -5 1.5 64 -435 0`\" where a = 3, b = -5, c = 1.5, d = 64, e = -435 and f = 0",
             "*Average Calculator*\nEnter numbers split by whitespace to calculate their average.\nExample: 12 5.4 6.56 -43.4 -767 343 1 -54"
         };
