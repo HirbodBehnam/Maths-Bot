@@ -8,18 +8,18 @@ namespace Maths_Bot
         /// <summary>
         /// Find factors of a number; Example: 6-> 1,2,3,6
         /// </summary>
-        /// <param name="Number">The number to find factors of</param>
+        /// <param name="number">The number to find factors of</param>
         /// <returns>Array of factors</returns>
-        public static uint[] Factors(uint Number)
+        public static uint[] Factors(uint number)
         {
             List<uint> factors = new List<uint>();
-            uint TO = (uint)Math.Sqrt(Number);
-            for(uint i = 1; i <= TO; i++)
+            uint to = (uint)Math.Sqrt(number);
+            for(uint i = 1; i <= to; i++)
             {
-                if(Number % i == 0)
+                if(number % i == 0)
                 {
                     factors.Add(i);
-                    factors.Add(Number / i);
+                    factors.Add(number / i);
                 }
             }
             factors.Sort();
@@ -42,7 +42,7 @@ namespace Maths_Bot
         public static uint[] Factorize(uint a)
         {
             List<uint> factors = new List<uint>();
-            uint TO = (uint)Math.Sqrt(a);
+            uint to = (uint)Math.Sqrt(a);
             while (a % 2 == 0)
             {
                 factors.Add(2);
@@ -56,7 +56,7 @@ namespace Maths_Bot
             uint i = 5;
             while(a != 1)
             {
-                if(i > TO)
+                if(i > to)
                 {
                     factors.Add(a);
                     break;
@@ -89,8 +89,8 @@ namespace Maths_Bot
                 return 2;
             if (number % 3 == 0)
                 return 3;
-            uint TO = (uint)Math.Sqrt(number);
-            for (uint i = 5; i <= TO; i += 6)
+            uint to = (uint)Math.Sqrt(number);
+            for (uint i = 5; i <= to; i += 6)
             {
                 if (number % i == 0)
                     return i;

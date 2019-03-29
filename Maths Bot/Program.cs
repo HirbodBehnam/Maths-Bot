@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,9 +13,9 @@ namespace Maths_Bot
 {
     class Program
     {
-        private static UserDatabaseType[] UserDB; //Can I use SynchronizedCollection<T> Class? Each user is stored in one element
-        private static TelegramBotClient bot;
-        private static readonly Dictionary<string, string> AvailableFucntionsList = new Dictionary<string, string>()
+        private static UserDatabaseType[] _userDb; //Can I use SynchronizedCollection<T> Class? Each user is stored in one element
+        private static TelegramBotClient _bot;
+        private static readonly Dictionary<string, string> AvailableFunctionsList = new Dictionary<string, string>()
         {
             { "factors","Find factors of a number; 6-> 1,2,3,6"},
             { "factorize","Factorize a number to prime factors" },
@@ -30,20 +31,19 @@ namespace Maths_Bot
             { "app","See the main Rare Math Calculations application on bazaar" },
             { "donate","Donate to me!" }
         };
-        private static readonly string ShowMenuAtLast = "\n\nUse /menu to choose another function.";
-        private static readonly string[] HelpInsideFunctions = new string[]
-        {
+        private const string ShowMenuAtLast = "\n\nUse /menu to choose another function.";
+        private static readonly string[] HelpInsideFunctions = {
             "*Factors*\nFind factors of a number.\nFor example 6 results in 1,2,3 and 6\nSend a number to bot to find it's factors.",
             "*Factorize*\nFactorize a number to prime factors.\nSend a number to factorize the number." ,
             "*GCD*\nFind greatest common divisor of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n43895 4343" ,
             "*LCM*\nFind least common multiple of two numbers.\nSend a numbers like `number1` `number2`.\nFor example send:\n94533 4453" ,
             "*Remainder*\nFind remainder of division of two numbers.\nSend a numbers like `dividend` `divisor`.\nFor example send:\n656757 535" ,
             "*Prime Detector*\nDetects if a number is prime or not.\nSend a number to bot to check.",
-            "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `ax²+bx+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"`3 -5 1.5`\" where a = 3, b = -5 and c = 1.5",
+            "*Quadratic Equation Solver*\nSolve a quadratic equation. Suppose the equation `a𝑥²+b𝑥+c=0`, then enter `a`, `b` and `c` split by white space.\nFor example send bot \"`3 -5 1.5`\" where a = 3, b = -5 and c = 1.5",
             "*Two Variable Two Equation Solver*\nSuppose the system\n`ax+by=c`\n`dx+ey=f`\nThen enter `a`, `b`, `c`, `d`, `e` and `f` split by whitespace.\nFor example send bot \"`3 -5 1.5 64 -435 0`\" where a = 3, b = -5, c = 1.5, d = 64, e = -435 and f = 0",
             "*Average Calculator*\nEnter numbers split by whitespace to calculate their average.\nExample: 12 5.4 6.56 -43.4 -767 343 1 -54"
         };
-        private static string DBPath = AppContext.BaseDirectory + "/user_database.json";
+        private static string _dbPath = AppContext.BaseDirectory + "/user_database.json";
         static void Main(string[] args)
         {
             if(args.Length == 0)
@@ -59,7 +59,7 @@ namespace Maths_Bot
             #region Parse Token and setup bot
             try
             {
-                bot = new TelegramBotClient(args[0]);
+                _bot = new TelegramBotClient(args[0]);
             }
             catch (ArgumentException e)
             {
@@ -74,69 +74,69 @@ namespace Maths_Bot
                 if (args[i] == "-l")
                     UseLoop = true;
                 else if (args[i] == "--db")
-                    DBPath = args[++i];
+                    _dbPath = args[++i];
                 else
                     Extra.WriteWarning("Unrecognized argument \"" + args[i] + "\"");
             }
             #endregion
             #region Load database
-            if (!System.IO.File.Exists(DBPath))
+            if (!System.IO.File.Exists(_dbPath))
             {
-                UserDB = new UserDatabaseType[0];
+                _userDb = new UserDatabaseType[0];
             }
             else
             {
-                UserDB = UserDatabaseActions.Load(DBPath);
-                if (UserDB == null)
+                _userDb = UserDatabaseActions.Load(_dbPath);
+                if (_userDb == null)
                     return;
             }
             #endregion
             //Setup bot
-            var me = bot.GetMeAsync().Result;
+            var me = _bot.GetMeAsync().Result;
             Console.Title = me.Username;
-            bot.OnMessage += BotOnMessageReceived;
-            bot.StartReceiving();
-            Console.WriteLine($"[ {DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Starting @{me.Username} bot.");
+            _bot.OnMessage += BotOnMessageReceived;
+            _bot.StartReceiving();
+            Console.WriteLine($"[ {DateTime.Now:dd MMMM yyyy HH:mm:ss} ]: Starting @{me.Username} bot.");
             //Run user db manager; It deletes each user that have not accessed database for more than 30 days
             new Task(() =>
             {
-                Console.WriteLine($"[ { DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Started database cleaner daemon.");
-                const int OneDay = 1000 * 60 * 60 * 24;
+                Console.WriteLine($"[ { DateTime.Now:dd MMMM yyyy HH:mm:ss} ]: Started database cleaner daemon.");
+                const int oneDay = 1000 * 60 * 60 * 24;
                 DateTime now;
-                List<UserDatabaseType> Users;
-                List<int> RemovedID;
+                List<UserDatabaseType> users;
+                List<int> removedId;
                 while (true)
                 {
                     now = DateTime.Now;
-                    Users = new List<UserDatabaseType>(UserDB);
-                    RemovedID = new List<int>();
-                    for (int i = 0; i < Users.Count; i++)
+                    users = new List<UserDatabaseType>(_userDb);
+                    removedId = new List<int>();
+                    for (int i = 0; i < users.Count; i++)
                     {
-                        if ((now - UserDB[i].LastUse).TotalDays >= 30)
+                        if ((now - _userDb[i].LastUse).TotalDays >= 30)
                         {
-                            RemovedID.Add(Users[i].UserID);
-                            Users.RemoveAt(i);
+                            removedId.Add(users[i].UserId);
+                            users.RemoveAt(i);
                         }
                     }
-                    if (RemovedID.Count != 0)
+                    if (removedId.Count != 0)
                     {
-                        UserDB = Users.ToArray();
-                        foreach(int i in RemovedID)
-                            Console.WriteLine($"[ { DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: A user has been removed from database. ID: " + i);
+                        _userDb = users.ToArray();
+                        foreach(int i in removedId)
+                            Console.WriteLine($"[ { DateTime.Now:dd MMMM yyyy HH:mm:ss} ]: A user has been removed from database. ID: " + i);
                     }
-                    Thread.Sleep(OneDay);
+                    Thread.Sleep(oneDay);
                 }
             }).Start();
             //Save database every 15 mins
             new Task(() =>
             {
-                Console.WriteLine($"[ { DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Started database saver daemon.");
-                const int FiftyMin = 1000 * 60 * 15;
+                Console.WriteLine($"[ { DateTime.Now:dd MMMM yyyy HH:mm:ss} ]: Started database saver daemon.");
+                const int fiftyMin = 1000 * 60 * 15;
                 while (true)
                 {
-                    Thread.Sleep(FiftyMin);
-                    if (UserDatabaseActions.Save(UserDB, DBPath))
-                        Console.WriteLine($"[ { DateTime.Now.ToString("dd MMMM yyyy HH:mm:ss")} ]: Saved database at " + DBPath);
+                    Thread.Sleep(fiftyMin);
+                    if (UserDatabaseActions.Save(_userDb, _dbPath))
+                        Console.WriteLine($"[ { DateTime.Now:dd MMMM yyyy HH:mm:ss} ]: Saved database at " + _dbPath);
                 }
             }).Start();
             /*
@@ -153,182 +153,182 @@ namespace Maths_Bot
                 Console.WriteLine("Press enter to stop bot.");
                 Console.ReadLine();//Wait until user presses enter
             }
-            bot.StopReceiving();
+            _bot.StopReceiving();
         }
         private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             Message message = messageEventArgs.Message;
             if (message == null || message.Type != MessageType.Text || string.IsNullOrWhiteSpace(message.Text)) //Only accept text
                 return;
-            int UserID = message.From.Id;
+            int userId = message.From.Id;
             #region Check DB
-            byte PageIn;
+            byte pageIn;
             {
-                byte? PageInN = Extra.GetPageIn(UserDB, UserID);
-                if (PageInN == null) //First time user is here
+                byte? pageInN = Extra.GetPageIn(_userDb, userId);
+                if (pageInN == null) //First time user is here
                 {
-                    PageInN = 0;
-                    Array.Resize(ref UserDB, UserDB.Length + 1);
-                    UserDB[UserDB.Length - 1] = new UserDatabaseType()
+                    pageInN = 0;
+                    Array.Resize(ref _userDb, _userDb.Length + 1);
+                    _userDb[_userDb.Length - 1] = new UserDatabaseType()
                     {
                         PageIn = 0,
                         LastUse = DateTime.Now,
-                        UserID = UserID
+                        UserId = userId
                     };
                 }
-                PageIn = PageInN ?? 0;
+                pageIn = pageInN ?? 0;
                 
             }
             #endregion
             switch(message.Text)
             {
                 case "/start":
-                    await bot.SendTextMessageAsync(message.Chat.Id, "Hello and welcome to Rare Math Calculations bot!\nUse /menu to get a list of commands.");
+                    await _bot.SendTextMessageAsync(message.Chat.Id, "Hello and welcome to Rare Math Calculations bot!\nUse /menu to get a list of commands.");
                     break;
                 case "/menu":
                     {
                         StringBuilder sb = new StringBuilder("Click on one of the commands to use it:\n");
-                        foreach (KeyValuePair<string, string> function in AvailableFucntionsList)
+                        foreach (KeyValuePair<string, string> function in AvailableFunctionsList)
                         {
                             sb.Append("/");
                             sb.Append(function.Key);
                             sb.Append(" : ");
                             sb.AppendLine(function.Value);
                         }
-                        await bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
+                        await _bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
                     }
                     break;
                 case "/help":
-                    await bot.SendTextMessageAsync(message.Chat.Id, PageIn == 0 ? "Use /menu and choose a command from it." : HelpInsideFunctions[PageIn-1],ParseMode.Markdown);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, pageIn == 0 ? "Use /menu and choose a command from it." : HelpInsideFunctions[pageIn-1],ParseMode.Markdown);
                     break;
                 case "/about":
-                    await bot.SendTextMessageAsync(message.Chat.Id, "Created with \u2764 by Hirbod Behnam! Contact me here: @ThyCrow\n\nAlso you can view the project source at:\nhttps://github.com/HirbodBehnam/Maths-Bot");
+                    await _bot.SendTextMessageAsync(message.Chat.Id, "Created with \u2764 by Hirbod Behnam! Contact me here: @ThyCrow\n\nAlso you can view the project source at:\nhttps://github.com/HirbodBehnam/Maths-Bot");
                     break;
                 case "/donate":
-                    await bot.SendTextMessageAsync(message.Chat.Id, "Thanks for donating to me!\u2764\nI currently only accept *Bitcoin*, *Bitcoin Gold*, *Ethereum*, *Monero* and *ZCash*.\nFor me, even 1$ per month would be ok but more is welcome :) Here are my wallet addresses:\nBitcoin\n`1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`\nBitcoin Gold:\n`GcNgxfyR3nnAsD3Nhuckvq14sXYuDFkK9P`\nEthereum:\n`0xbb527a28B76235E1C125206B7CcFF944459b4894`\nMonero:\n`43GGA2kcGwqBXpGKwt2zFBicz2wh41zX3JNSnj12dXDiWzJHn44tpVT1eiUt8UMym828A1BBgaboBTn1usnCNHZqMhhuDXz`\nZCash:\n`t1ZKYrYZCjxDYvo6mQaLZi3gNe2a6MydUo3`\n\nWant to buy some? Check here: https://www.coinbase.com and https://exchanging.ir/sell/", ParseMode.Markdown,true);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, "Thanks for donating to me!\u2764\nI currently only accept *Bitcoin*, *Bitcoin Gold*, *Ethereum*, *Monero* and *ZCash*.\nFor me, even 1$ per month would be ok but more is welcome :) Here are my wallet addresses:\nBitcoin\n`1XDgEkpnkJ7hC8Kwv5adfaDC1Z3FrkwsK`\nBitcoin Gold:\n`GcNgxfyR3nnAsD3Nhuckvq14sXYuDFkK9P`\nEthereum:\n`0xbb527a28B76235E1C125206B7CcFF944459b4894`\nMonero:\n`43GGA2kcGwqBXpGKwt2zFBicz2wh41zX3JNSnj12dXDiWzJHn44tpVT1eiUt8UMym828A1BBgaboBTn1usnCNHZqMhhuDXz`\nZCash:\n`t1ZKYrYZCjxDYvo6mQaLZi3gNe2a6MydUo3`\n\nWant to buy some? Check here: https://www.coinbase.com and https://exchanging.ir/sell/", ParseMode.Markdown,true);
                     break;
                 case "/app":
-                    await bot.SendTextMessageAsync(message.Chat.Id, "If you are an Android user you can simply download my Rare Math Calculations app on CafeBazaar. It's free and no Internet connection is needed. It also have some other parts and calculations you can use!\nhttps://cafebazaar.ir/app/com.hirbod.maths/\n\niOS users can also use my website https://hirbodbehnam.github.io/ or they can install my app from sibApp https://new.sibapp.com/applications/maths");
+                    await _bot.SendTextMessageAsync(message.Chat.Id, "If you are an Android user you can simply download my Rare Math Calculations app on CafeBazaar. It's free and no Internet connection is needed. It also have some other parts and calculations you can use!\nhttps://cafebazaar.ir/app/com.hirbod.maths/\n\niOS users can also use my website https://hirbodbehnam.github.io/ or they can install my app from sibApp https://new.sibapp.com/applications/maths");
                     break;
                 case "/factors":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 1);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[0] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 1);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[0] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/factorize":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 2);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[1] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 2);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[1] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/gcd":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 3);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[2] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 3);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[2] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/lcm":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 4);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[3] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 4);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[3] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/mod":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 5);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[4] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 5);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[4] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/detectprime":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 6);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[5] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 6);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[5] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/quadratic":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 7);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[6]+ ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 7);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[6]+ ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/2varequation":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 8);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[7] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 8);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[7] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 case "/average":
-                    UserDB = Extra.SetPageIn(UserDB, UserID, 9);
-                    await bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[8] + ShowMenuAtLast, ParseMode.Markdown);
+                    _userDb = Extra.SetPageIn(_userDb, userId, 9);
+                    await _bot.SendTextMessageAsync(message.Chat.Id, HelpInsideFunctions[8] + ShowMenuAtLast, ParseMode.Markdown);
                     break;
                 default:
-                    if (PageIn == 0)
-                        await bot.SendTextMessageAsync(message.Chat.Id, "Choose a function from /menu");
+                    if (pageIn == 0)
+                        await _bot.SendTextMessageAsync(message.Chat.Id, "Choose a function from /menu");
                     else
                     {
-                        switch (PageIn)
+                        switch (pageIn)
                         {
                             case 1: //Factors
                                 {
-                                    uint Number;
+                                    uint number;
                                     try
                                     {
-                                        Number = uint.Parse(message.Text);
-                                        if (Number == 0)
+                                        number = uint.Parse(message.Text);
+                                        if (number == 0)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
                                         break;
                                     }
                                     new Task(() => //Send process to background to avoid busy threads
                                     {
-                                        uint[] facotrs = MathCore.Factors(Number);
+                                        uint[] factors = MathCore.Factors(number);
                                         StringBuilder sb = new StringBuilder();
-                                        sb.Append(Number);
+                                        sb.Append(number);
                                         sb.Append(" has ");
-                                        sb.Append(facotrs.Length);
+                                        sb.Append(factors.Length);
                                         sb.AppendLine(" factors.");
                                         sb.Append("The factors of ");
-                                        sb.Append(Number);
+                                        sb.Append(number);
                                         sb.AppendLine(" are:");
-                                        foreach (uint i in facotrs)
+                                        foreach (uint i in factors)
                                         {
                                             if (sb.Length >= 4084)//Telegram Max Message Length - number of chars in 2^32 - chars in '\n'
                                             {
-                                                bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
+                                                _bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
                                                 sb = new StringBuilder();
                                             }
                                             sb.Append(i);
                                             sb.Append("\n");
                                         }
-                                        bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
+                                        _bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
                                     }).Start();
                                 }
                                 break;
                             case 2: //Factorize
                                 {
-                                    uint Number;
+                                    uint number;
                                     try
                                     {
-                                        Number = uint.Parse(message.Text);
-                                        if (Number < 2)
+                                        number = uint.Parse(message.Text);
+                                        if (number < 2)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 2 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 2 and 4294967296.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 2 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 2 and 4294967296.");
                                         break;
                                     }
                                     new Task(() => //Send process to background to avoid busy threads
                                     {
                                         StringBuilder sb = new StringBuilder();
-                                        sb.Append(Number);
+                                        sb.Append(number);
                                         sb.Append(" =");
-                                        foreach (uint i in MathCore.Factorize(Number)) //Show result
+                                        foreach (uint i in MathCore.Factorize(number)) //Show result
                                         {
                                             sb.Append(' ');
                                             sb.Append(i);
                                             sb.Append(" x");
                                         }
                                         sb.Length--;
-                                        bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
+                                        _bot.SendTextMessageAsync(message.Chat.Id, sb.ToString());
                                     }).Start();
                                 }
                                 break;
@@ -337,28 +337,28 @@ namespace Maths_Bot
                                     string[] splitMessage = message.Text.Split(' ');
                                     if (splitMessage.Length != 2)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send two numbers split with whitespace.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Please send two numbers split with whitespace.");
                                         break;
                                     }
-                                    uint Num1, Num2;
+                                    uint num1, num2;
                                     try
                                     {
-                                        Num1 = uint.Parse(splitMessage[0]);
-                                        Num2 = uint.Parse(splitMessage[1]);
-                                        if (Num1 == 0 || Num2 == 0)
+                                        num1 = uint.Parse(splitMessage[0]);
+                                        num2 = uint.Parse(splitMessage[1]);
+                                        if (num1 == 0 || num2 == 0)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
                                         break;
                                     }
-                                    new Task(() => bot.SendTextMessageAsync(message.Chat.Id, "The GCD of " + Num1 + " and " + Num2 + " is `" + MathCore.GCD(Num1, Num2) + "`", ParseMode.Markdown))
+                                    new Task(() => _bot.SendTextMessageAsync(message.Chat.Id, "The GCD of " + num1 + " and " + num2 + " is `" + MathCore.GCD(num1, num2) + "`", ParseMode.Markdown))
                                         .Start();
                                 }
                                 break;
@@ -367,28 +367,28 @@ namespace Maths_Bot
                                     string[] splitMessage = message.Text.Split(' ');
                                     if (splitMessage.Length != 2)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send two numbers split with whitespace.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Please send two numbers split with whitespace.");
                                         break;
                                     }
-                                    uint Num1, Num2;
+                                    uint num1, num2;
                                     try
                                     {
-                                        Num1 = uint.Parse(splitMessage[0]);
-                                        Num2 = uint.Parse(splitMessage[1]);
-                                        if (Num1 == 0 || Num2 == 0)
+                                        num1 = uint.Parse(splitMessage[0]);
+                                        num2 = uint.Parse(splitMessage[1]);
+                                        if (num1 == 0 || num2 == 0)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 4294967296.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 4294967296.");
                                         break;
                                     }
-                                    new Task(() => bot.SendTextMessageAsync(message.Chat.Id, "The LCM of " + Num1 + " and " + Num2 + " is `" + (Num1 * Num2 / MathCore.GCD(Num1, Num2)) + "`", ParseMode.Markdown))
+                                    new Task(() => _bot.SendTextMessageAsync(message.Chat.Id, "The LCM of " + num1 + " and " + num2 + " is `" + (num1 * num2 / MathCore.GCD(num1, num2)) + "`", ParseMode.Markdown))
                                         .Start();
                                 }
                                 break;
@@ -397,53 +397,53 @@ namespace Maths_Bot
                                     string[] splitMessage = message.Text.Split(' ');
                                     if (splitMessage.Length != 2)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send two numbers split with whitespace.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Please send two numbers split with whitespace.");
                                         break;
                                     }
-                                    ulong Num1, Num2;
+                                    ulong num1, num2;
                                     try
                                     {
-                                        Num1 = ulong.Parse(splitMessage[0]);
-                                        Num2 = ulong.Parse(splitMessage[1]);
-                                        if (Num2 == 0)
+                                        num1 = ulong.Parse(splitMessage[0]);
+                                        num2 = ulong.Parse(splitMessage[1]);
+                                        if (num2 == 0)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 18446744073709551616.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 1 and 18446744073709551616.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 18446744073709551616.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 1 and 18446744073709551616.");
                                         break;
                                     }
-                                    await bot.SendTextMessageAsync(message.Chat.Id, "The remainder of division of " + Num1 + " / " + Num2 + " is `" + Num1 % Num2 + "`", ParseMode.Markdown);
+                                    await _bot.SendTextMessageAsync(message.Chat.Id, "The remainder of division of " + num1 + " / " + num2 + " is `" + num1 % num2 + "`", ParseMode.Markdown);
                                 }
                                 break;
                             case 6: //Detect prime
                                 {
-                                    uint Number;
+                                    uint number;
                                     try
                                     {
-                                        Number = uint.Parse(message.Text);
-                                        if (Number < 2)
+                                        number = uint.Parse(message.Text);
+                                        if (number < 2)
                                             throw new FormatException();
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 2 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is not in valid format. Enter a number between 2 and 4294967296.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 2 and 4294967296.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Your number is too big! Enter a number between 2 and 4294967296.");
                                         break;
                                     }
                                     new Task(() =>
                                     {
-                                        uint res = MathCore.DetectPrime(Number);
-                                        bot.SendTextMessageAsync(message.Chat.Id, Number + (res == 1 ? " IS PRIME." : " IS NOT prime. It can be divided by " + res));
+                                        uint res = MathCore.DetectPrime(number);
+                                        _bot.SendTextMessageAsync(message.Chat.Id, number + (res == 1 ? " IS PRIME." : " IS NOT prime. It can be divided by " + res));
                                     }).Start();
                                 }
                                 break;
@@ -452,7 +452,7 @@ namespace Maths_Bot
                                     string[] splitMessage = message.Text.Split(' ');
                                     if (splitMessage.Length != 3)//Check for numbers
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send bot three numbers.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Please send bot three numbers.");
                                         break;
                                     }
                                     double a, b, c;
@@ -464,28 +464,28 @@ namespace Maths_Bot
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "I wonder how long you've been typing? You overflowed a double type!");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "I wonder how long you've been typing? You overflowed a double type!");
                                         break;
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "The value you entered is not valid.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "The value you entered is not valid.");
                                         break;
                                     }
                                     if (a == 0)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "`a` cannot be 0.", ParseMode.Markdown);
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "`a` cannot be 0.", ParseMode.Markdown);
                                         break;
                                     }
                                     double delta = b * b - 4 * a * c;
                                     if (delta < 0)
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "`delta` is less than 0.", ParseMode.Markdown);
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "`delta` is less than 0.", ParseMode.Markdown);
                                     else if (delta == 0)
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "`x` = `" + ((-b) / (2 * a)) + "`", ParseMode.Markdown);
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "`x` = `" + ((-b) / (2 * a)) + "`", ParseMode.Markdown);
                                     else
                                     {
                                         delta = Math.Sqrt(delta);
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "`x1` = `" + ((-b + delta) / (2 * a)) + "`\n`x2` = `" + ((-b - delta) / (2 * a)) + "`", ParseMode.Markdown);
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "`x1` = `" + ((-b + delta) / (2 * a)) + "`\n`x2` = `" + ((-b - delta) / (2 * a)) + "`", ParseMode.Markdown);
                                     }
                                 }
                                 break;
@@ -494,7 +494,7 @@ namespace Maths_Bot
                                     string[] splitMessage = message.Text.Split(' ');
                                     if (splitMessage.Length != 6)//Check for numbers
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Please send bot six numbers.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Please send bot six numbers.");
                                         break;
                                     }
                                     double a, b, c, d, e, f;
@@ -509,22 +509,22 @@ namespace Maths_Bot
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "I wonder how long you've been typing? You overflowed a double type!");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "I wonder how long you've been typing? You overflowed a double type!");
                                         break;
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "The value you entered is not valid.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "The value you entered is not valid.");
                                         break;
                                     }
                                     double det = a * e - b * d;
                                     if(det == 0)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Lines are parallel.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Lines are parallel.");
                                         break;
                                     }
                                     double detX = c * e - f * b, detY = a * f - d * c;
-                                    await bot.SendTextMessageAsync(message.Chat.Id, "x = `" + (detX / det) + "`\ny = `" + (detY / det) + "`",ParseMode.Markdown);
+                                    await _bot.SendTextMessageAsync(message.Chat.Id, "x = `" + (detX / det) + "`\ny = `" + (detY / det) + "`",ParseMode.Markdown);
                                 }
                                 break;
                             case 9: //Average
@@ -533,20 +533,19 @@ namespace Maths_Bot
                                     double sum = 0;
                                     try
                                     {
-                                        foreach (string s in splitMessage)
-                                            sum += Convert.ToDouble(s);
+                                        sum += splitMessage.Sum(s => Convert.ToDouble(s));
                                     }
                                     catch (FormatException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Invalid number.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Invalid number.");
                                         break;
                                     }
                                     catch (OverflowException)
                                     {
-                                        await bot.SendTextMessageAsync(message.Chat.Id, "Sum of numbers are two big.");
+                                        await _bot.SendTextMessageAsync(message.Chat.Id, "Sum of numbers are two big.");
                                         break;
                                     }
-                                    await bot.SendTextMessageAsync(message.Chat.Id, "The average is `" + (sum / splitMessage.Length) + "`",ParseMode.Markdown);
+                                    await _bot.SendTextMessageAsync(message.Chat.Id, "The average is `" + (sum / splitMessage.Length) + "`",ParseMode.Markdown);
                                 }
                                 break;
                         }

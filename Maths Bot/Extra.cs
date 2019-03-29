@@ -36,21 +36,21 @@ namespace Maths_Bot
         /// Get the page currently user is in.
         /// </summary>
         /// <param name="db"></param>
-        /// <param name="UserID"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
-        public static byte? GetPageIn(UserDatabaseType[] db,int UserID)
+        public static byte? GetPageIn(UserDatabaseType[] db,int userId)
         {
             foreach (UserDatabaseType u in db)
-                if (u.UserID == UserID)
+                if (u.UserId == userId)
                     return u.PageIn;
             return null;
         }
-        public static UserDatabaseType[] SetPageIn(UserDatabaseType[] db, int UserID,byte Page)
+        public static UserDatabaseType[] SetPageIn(UserDatabaseType[] db, int userId,byte page)
         {
             for(int i = 0;i<db.Length;i++)
-                if(db[i].UserID == UserID)
+                if(db[i].UserId == userId)
                 {
-                    db[i].PageIn = Page;
+                    db[i].PageIn = page;
                     db[i].LastUse = DateTime.Now;
                     return db;
                 }

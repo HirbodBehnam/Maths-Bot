@@ -6,7 +6,7 @@ namespace Maths_Bot
 {
     public struct UserDatabaseType
     {
-        public int UserID; //Telegram User ID
+        public int UserId; //Telegram User ID
         public byte PageIn; //The function user is using
         public DateTime LastUse; //Last usage of bot; if more than 30 days, bot will delete user from database
     }
@@ -47,8 +47,8 @@ namespace Maths_Bot
         {
             try
             {
-                string SavedData = File.ReadAllText(path);
-                return JsonConvert.DeserializeObject<UserDatabaseTypeArray>(SavedData).db;
+                string savedData = File.ReadAllText(path);
+                return JsonConvert.DeserializeObject<UserDatabaseTypeArray>(savedData).db;
             }
             catch (FileNotFoundException)
             {
