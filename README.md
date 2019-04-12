@@ -15,3 +15,5 @@ Example: `dotnet "Maths Bot.dll" tOkEn`
 [Website](https://hirbodbehnam.github.io/)
 
 [Android Application](https://cafebazaar.ir/app/com.hirbod.maths)
+
+[iOS Application](https://sibapp.com/applications/maths)
